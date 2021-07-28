@@ -1,0 +1,193 @@
+#!/bin/bash
+#
+# V1.0
+#
+# See the end of this script for complete details on configuration and use
+#
+function _rxapp_call() {
+    #
+    # $1: hostname
+    # $2: display name
+    # $3-n: app or quoted app string
+    #If RXUSER is defined, use that for the remote user, otherwise use current user
+    #
+    local host=$1 dpy=$2
+    local app="${3%\"}" # Del opening double-quotes 
+    app="${app#\"}"     # Del closing double-quotes 
+    app="${app%\'}"     # Del opening single-quotes 
+    app="${app#\'}"     # Del closing single-quotes 
+    app="$app $4 $5 $6 $7 $8 $9 ${10} ${11} ${12} ${13} ${14} ${15} ${16} ${17}"
+#***???    app="${app// }"     # Strip trailing spaces
+    [ "$RXUSER" == "" ] && ruser=$(whoami) || ruser=$RXUSER
+    [ "$dpy" == "" ] && sshsw="${RXSSHSW:--X}" || sshsw=""
+    [ "$RXDBGOUT" != "" ] && (date ; printf "* rxapp remote command: $app\n\n") > $RXDBGOUT
+    (ssh -t ${RXDBGSSH} $sshsw $ruser@$host >> ${RXDBGOUT:-/dev/null} 2>&1 << EOF
+[ "$dpy" != "" ] && declare -x DISPLAY="$dpy"
+[ "$RXDBGRMT" != "" ] && ( date ; printenv) > ${RXDBGRMT:-/dev/null}
+$app &
+exit
+EOF
+    ) &
+}
+
+function rxapp_() {
+    #
+    # $1 - target hostname
+    # $2-$13 program to run and arguments
+    #
+    local hn=$1 dpy="$RXDISPLAY"
+    local appb="$(basename $2)"
+    local appgeoenv="RXG${appb^^}"
+    local app="$2 ${!appgeoenv}" # Include app-specific geometry setting if defined (RXGappname, e.g., RXGXTERM)
+    _rxapp_call $hn "$dpy" $app $3 $4 $5 $6 $7 $8 $9 ${10} ${11} ${12} ${13} ${14} ${15} ${16}
+}
+
+rxapp_ $1 $2 $3 $4 $5 $6 $7 $8 $9 ${10} ${11} ${12} ${13} ${14} ${15} ${16}
+exit
+
+# Quickly and Easily start X11 applications running on a remote client system,
+# displaying on the desired X server
+#
+# NOTE: There is a more legible version of these details at https://github.com/gitbls/rxapp
+#
+# TOPICS
+#  1) Setting up ssh for password-less login
+#  2) Using SSH forwarding vs direct TCP connection
+#  3) Example bash aliases
+#  4) Command line and Special rxapp control features
+#  5) Configuring the X server for direct TCP connections
+#  6) Problem-solving hints
+#
+# 1) Setting up ssh for password-less login
+#
+#    Password-less rxapp use requires that ~/.ssh on the rxapp-starting host and the X11 client system
+#    both have ssh set up correctly:
+#    * The rxapp-starting host has ssh-agent or keychain installed and configured
+#    * The X11 client (where the X11 app runs) has ~/.ssh/authorized_keys enabled with the correct ssh public key
+#
+#    a) Create the key. This can be done on any host, but the keys must be deployed correctly
+#       on both the rxapp-starting host and the target host. Easiest to do this on the rxapp-starting host.
+#       * ssh-keygen -t rsa -C keyname
+#         * Creates an ssh key pair with the comment 'keyname'
+#           * By default the comment in the public key will be 'user@host'
+#           * Specifying a useful 'keyname' makes it easier to identify the key when you look at the key.pub file
+#             or ~/.ssh/authorized_keys and is critical if you use multiple keys 
+#       * When you create the key you'll be prompted for a passphrase for the key. This is highly recommended
+#         for increased security
+#       * If you use keychain or ssh-agent you'll typically only enter it once per system reboot
+#       * Make sure that you save the new key in ~/.ssh (aka /home/yourusername/.ssh)
+#       * Expert tip: Can also add -O source-address=ip.ad.dr.0/24 for instance, to restrict the key to those
+#         source IP addresses
+#       * See 'man ssh-keygen' for a complete list of options and the complete ssh-keygen help
+#
+#    b) Propagate the public key as needed to the target host (X11 app running host)
+#       * ssh-copy-id -i identity-file [user@]hostname
+#       * The rxapp-starting host must have both the public (keyname.pub) and private (keyname) keys in ~/.ssh
+#       * If needed, copy the private key manually to ~/.ssh on the rxapp-starting host and protect it 600
+#
+#    c) If you want to use the rxapp 'run as different user' feature, use ssh-copy-id to those accounts as well
+#
+#    d) Use ssh-agent on the rxapp-starting host to enable password-less ssh key usage
+#       keychain is a simple way to manage and use ssh-agent
+#
+#       * Using keychain to simplify use of ssh-agent
+#         * bash$ sudo apt install keychain
+#         * Add to your .bashrc at the correct spot (try the end if you're not sure)
+#           # keystart and keystop aliases make it easy to stop and restart ssh-agent
+#           # Replace 'sshkeyfile' with the filename(s) of the keys you want to use (just the filename, not full path)
+#           alias keystart='keychain -q --nogui [--ignore-missing] --agents ssh sshkeyfile1 sshkeyfile2 ; source ~/.keychain/$(hostname)-sh'
+#           alias keystop='keychain -q --stop all'  # Use keystop to stop the running ssh-agent (it's ok to not stop it)
+#           keystart                                # If your private keys have passwords, you will be prompted to enter them
+#
+#       * Using ssh-agent by itself without keychain
+#         * There are many tutorials and permutations for using ssh-agent
+#         * One way is to add to your .bashrc:
+#           eval `ssh-agent`                                 # This starts ssh-agent
+#           ssh-add sshkeyfile (e.g., ssh-add ~/.ssh/id_rsa) # This adds the private key identity to ssh-agent
+#
+#    * If you have set up password-less ssh correctly, you will be able to simply:
+#      bash$ ssh otherhost    #This should seamlessly login to 'otherhost' with no password prompt for the account or the ssh key
+#
+# 2) SSH Forwarding
+#
+#    * SSH X11 Forwarding is used by default with rxapp; the remote application will be displayed on the X Server
+#      of the rxapp-starting host
+#    * rxapp will add the ssh switch "-X" (enable X11 Forwarding)
+#    * Expert tip: Define the environment variable RXSSHSW with any desired additional ssh switches:
+#      bash$ RXSSHSW="-X -Y" rxapp myhost myapp
+#    * To use a direct TCP connection to an X Server, see 5) below and set the environment variable RXDISPLAY:
+#      bash$ RXDISPLAY=somehost.local:0 rxapp otherhost
+#
+# 3) Example .bashrc aliases
+#
+#    * Add something like this in .bashrc to start an xterm on a remote host
+#      function rxterm() { (rxapp $1 xterm $2 $3 $4 $5 $6 $7 $8) ; } ; declare -fx rxterm
+#
+#    * Similarly, add functions to .bashrc for other commonly-used X11 apps. For instance, to add chromium:
+#      function rxchromium() { (rxapp $1 chromium $2 $3 $4 $5 $6 $7 $8) ; } ; declare -fx rxchromium
+#
+#    * Optionally, include RXUSER to run a remote X11 service as a different user (See 2a below)
+#      function rxotheru() { (declare -x RXUSER="other" ; rxapp $1 xterm $2 $3 $4 $5 $6 $7 $8) ; } ; declare -fx rxtsu
+#      function rxtsu() { (declare -x RXUSER="root" ; rxapp $1 xterm $2 $3 $4 $5 $6 $7 $8) ; } ; declare -fx rxtsu
+#
+# 4) Command line Special rxapp control features
+#
+#    * Use this on the command line to run an X11 application an a remote host
+#      rxapp hostname cmdname arg1 arg2 arg3 arg4 ... arg8
+#
+#    * These environment variables may be used to control rxapp's operation
+#
+#      RXDISPLAY  The address of the X display in the form host:0
+#                 Default is to use SSH X11 Forwarding over the SSH connection to the current host (where rxapp is running)
+#                 RXDISPLAY can be to the host where rxapp is run, or another host with an X server running
+#                 Using RXDISPLAY creates an unencrypted connection without SSH X11 Forwarding (OK for a 'home LAN')
+#      RXUSER     The username for the system where the X client app will be run
+#                 Default is same as current user
+#      RXGappname Specify the geometry for an app if defined
+#                 Standard X11 apps use "-geometry WIDTHxHEIGHT"
+#                 Other apps might have a different syntax, for example
+#                 lxterminal uses "--geometry=WIDTHxHEIGHT" so: declare -x RXGLXTERMINAL="--geometry WIDTHxHEIGHT"
+#                 See the man page or help for the app in question
+#                 Default is whatever the X defaults are for that app
+#      RXSSHSW    Specify ssh switches to use for X11 forwarding
+#                 Default is "-X"
+#
+#    * Environment variables to help debug rxapp/ssh issues
+#
+#      RXDBGSSH   Specify additional switches for ssh command, for instance use "-vvv" to get full ssh debug output
+#      RXDBGOUT   Specify file for ssh console output. /dev/null if not specified
+#      RXDBGRMT   Specify file for debugging output on remote system. Currently gets output of printenv (useful to see DISPLAY)
+#
+# 5) Configuring the X server for direct TCP connections
+#
+#    In order to use RXDISPLAY, there are two additional extra steps:
+#    * The X Server to which the app is going to display must have tcp enabled in the Display Manager
+#      * Lightdm: Edit /etc/lightdm/lightdm.conf
+#                 Search for the line "#xserver-allow-tcp=false"
+#                 Add a new line after that: xserver-allow-tcp=true
+#      * xdm:     Edit /etc/X11/xdm/Xservers
+#                 Find the line that enables the console Xserver (by default starts with ":0")
+#                 Change "-nolisten tcp" to "-listen tcp"
+#
+#      After you edit the Display Manager configuration, restart the system for the changes to take effect.
+#      (You could restart lightdm or xdm, but doing so will probably kill your logged-in session, so you might as well reboot)
+# 
+#    * The X server must have access control enabled
+#      Use the xhost command to enable access control as desired:
+#      * bash$ xhost +                  # Enables Xserver access from any host
+#      * bash$ xhost +hostname          # Enables Xserver access from the specified hostname
+#
+#     See 'man xhost' for complete details.
+#
+# 6) Problem-solving hints
+#
+#  * Make sure you can do password-less ssh to the remote X11 client system
+#  * Does the X11 app you're trying to run actually exist on the remote client system?
+#  * Try using RXDBGOUT to get the ssh output, perhaps in conjuction with RXDBGSSH
+#    bash$ RXDBGOUT=afile rxapp remotehost /bin/xeyes
+#    bash$ RXDBGOUT=afile RXDBGSSH="-vvv" rxapp remotehost /bin/xeyes
+#  * Ensure that the remote client is getting the correct DISPLAY variable
+#    bash$ RXDBGRMT=afile rxapp remotehost /bin/xeyes
+#    And then review the file 'afile' on the remote host
+#  * If using RXDISPLAY make sure that you have done the appropriate changes from 5)
+#
