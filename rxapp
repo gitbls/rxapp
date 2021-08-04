@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# V1.0
+# V1.1
 #
 # See the end of this script for complete details on configuration and use
 #
@@ -17,7 +17,9 @@ function _rxapp_call() {
     app="${app%\'}"     # Del opening single-quotes 
     app="${app#\'}"     # Del closing single-quotes 
     app="$app $4 $5 $6 $7 $8 $9 ${10} ${11} ${12} ${13} ${14} ${15} ${16} ${17}"
-#***???    app="${app// }"     # Strip trailing spaces
+    # remove extra whitespace characters
+    app="${app#"${app%%[![:space:]]*}"}"
+    app="${app%"${app##*[![:space:]]}"}"
     [ "$RXUSER" == "" ] && ruser=$(whoami) || ruser=$RXUSER
     [ "$dpy" == "" ] && sshsw="${RXSSHSW:--X}" || sshsw=""
     [ "$RXDBGOUT" != "" ] && (date ; printf "* rxapp remote command: $app\n\n") > $RXDBGOUT
