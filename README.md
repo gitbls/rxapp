@@ -41,7 +41,7 @@ both have ssh set up correctly as follows:
 
 The steps below will guide you through this.
 
-1. **Create the key** This can be done on any host, but the keys must be deployed correctly
+* **Create the key** This can be done on any host, but the keys must be deployed correctly
       on both the rxapp-starting host and the target host. Easiest to do this on the rxapp-starting host.
       * `ssh-keygen -t rsa -C keycomment`
         * Creates an ssh key pair with the comment *keycomment*
@@ -55,17 +55,17 @@ The steps below will guide you through this.
         source IP addresses
       * See `man ssh-keygen` for a complete list of options and the complete ssh-keygen help
 
-2. **Propagate the public key** as needed to the target host(s) (X11 app running host)
+* **Propagate the public key** as needed to the target host(s) (X11 app running host)
       * `ssh-copy-id -i identity-file [user@]otherhost`
       * The rxapp-starting host must have both the public (keyname.pub) and private (keyname) keys in ~/.ssh
       * If needed, copy the private key manually to `~/.ssh` on the rxapp-starting host and protect it 600
 
-3. If you want to use the rxapp *run as different user* feature, use `ssh-copy-id` to propagate the public key to those accounts as well
+* If you want to use the rxapp *run as different user* feature, use `ssh-copy-id` to propagate the public key to those accounts as well
 
-4. **Use ssh-agent** on the rxapp-starting host to enable password-less ssh key usage
+* **Use ssh-agent** on the rxapp-starting host to enable password-less ssh key usage
       *keychain is a simple way to manage and use ssh-agent*
 
-      * **Use keychain** to simplify use of ssh-agent
+    * **Use keychain** to simplify use of ssh-agent
         * `sudo apt install keychain`
         * Add to your .bashrc at the correct spot (try the end if you're not sure). If your keys have a password on them (and they should), you will be prompted for the password. This is true whether you're using `keychain` or `ssh-agent/ssh-add` directly.
 ```
@@ -74,10 +74,9 @@ The steps below will guide you through this.
     alias keystart='keychain -q --nogui [--ignore-missing] --agents ssh sshkeyfile1 sshkeyfile2 ; source ~/.keychain/$(hostname)-sh'
     alias keystop='keychain -q --stop all'  # Use keystop to stop the running ssh-agent (it's ok to not stop it)
     keystart                                # If your private keys have passwords, you will be prompted to enter them
+                                            # The optional `--ignore-missing` switch eliminates messages about missing keys.
 ```
-The optional `--ignore-missing` switch eliminates messages about missing keys.
-
-      * **Using ssh-agent by itself** without keychain
+    * **Using ssh-agent by itself** without keychain
         * There are many tutorials and permutations for using ssh-agent
         * One way is to add to your .bashrc at an appropriate location. As with `keychain`, if your keys have a password on them you will be prompted for the password.
 ```
@@ -87,7 +86,7 @@ ssh-add sshkeyfile  # Add the private key identity to ssh-agent
 ```
 If you have more than one *sshkeyfile*, you can list them all on the `ssh-add` command line
 
-5. **Test your work!**
+* **Test your work!**
 If you have set up password-less ssh correctly, you will be able to simply:
 ```
 ssh otherhost 
