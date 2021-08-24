@@ -63,11 +63,11 @@ The steps below will guide you through this.
 * If you want to use the rxapp *run as different user* feature, use `ssh-copy-id` to propagate the public key to those accounts as well
 
 * **Use ssh-agent** on the rxapp-starting host to enable password-less ssh key usage
-      *keychain is a simple way to manage and use ssh-agent*
+      *keychain is a simple way to manage and use ssh-agent*. Either use keychain, or ssh-agent by itself. But not both.
 
-    * **Use keychain** to simplify use of ssh-agent
-        * `sudo apt install keychain`
-        * Add to your .bashrc at the correct spot (try the end if you're not sure). If your keys have a password on them (and they should), you will be prompted for the password. This is true whether you're using `keychain` or `ssh-agent/ssh-add` directly.
+* **Using keychain** to simplify use of ssh-agent
+    * `sudo apt install keychain`
+    * Add to your .bashrc at the correct spot (try the end if you're not sure). If your keys have a password on them (and they should), you will be prompted for the password. This is true whether you're using `keychain` or `ssh-agent/ssh-add` directly.
 ```
     # keystart and keystop aliases make it easy to stop and restart ssh-agent
     # Replace 'sshkeyfile' with the filename(s) of the keys you want to use (just the filename, not full path)
@@ -76,9 +76,9 @@ The steps below will guide you through this.
     keystart                                # If your private keys have passwords, you will be prompted to enter them
                                             # The optional `--ignore-missing` switch eliminates messages about missing keys.
 ```
-    * **Using ssh-agent by itself** without keychain
-        * There are many tutorials and permutations for using ssh-agent
-        * One way is to add to your .bashrc at an appropriate location. As with `keychain`, if your keys have a password on them you will be prompted for the password.
+* **Using ssh-agent by itself** without keychain
+    * There are many tutorials and permutations for using ssh-agent
+    * One way is to add to your .bashrc at an appropriate location. As with `keychain`, if your keys have a password on them you will be prompted for the password.
 ```
 eval `ssh-agent`    # Start ssh-agent
 ssh-add sshkeyfile  # Add the private key identity to ssh-agent
