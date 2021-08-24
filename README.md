@@ -48,7 +48,7 @@ The steps below will guide you through this.
           * By default the comment in the public key will be 'user@host'
           * Specifying a useful *keycomment* makes it easier to identify the key when you look at 
             `~/.ssh/authorized_keys` and is critical if you use multiple keys so you can easily identify each one.
-      * When you create the key you'll be prompted for a passphrase for the key. This is highly recommended for increased. `keychain` and/or `ssh-agent` make using passphrase-protected keys quite tolerable.
+      * When you create the key you'll be prompted for a passphrase for the key. This is highly recommended for increased security. `keychain` and/or `ssh-agent` make using passphrase-protected keys quite tolerable.
       * If you use `keychain` or `ssh-agent` you'll typically only enter it once per system reboot
       * Make sure that you save the new key in `~/.ssh` (aka `/home/yourusername/.ssh`)
       * Expert tip: Can also add -O source-address=ip.ad.dr.0/24 for instance, to restrict the key to those
