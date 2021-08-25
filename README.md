@@ -26,8 +26,8 @@ Most of the details below are around setting up SSH password-less login, which y
 
 Installation is super-simple. Download https://github.com/gitbls/rxapp/blob/master/rxapp and put it someplace convenient on your system. The best places to put it are /usr/local/bin (so it's available to all users) or ~/bin (available for the current user only).
 ```
-curl -L https://raw.githubusercontent.com/gitbls/rxapp/master/rxapp -o /usr/local/bin/rxapp
-chmod 755 /usr/local/bin/rxapp
+sudo curl -L https://raw.githubusercontent.com/gitbls/rxapp/master/rxapp -o /usr/local/bin/rxapp
+sudo chmod 755 /usr/local/bin/rxapp
    - OR -
 curl -L https://raw.githubusercontent.com/gitbls/rxapp/master/rxapp -o ~/bin/rxapp
 chmod 755 ~/bin/rxapp
