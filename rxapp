@@ -20,10 +20,15 @@ function _rxapp_call() {
     # remove extra whitespace characters
     app="${app#"${app%%[![:space:]]*}"}"
     app="${app%"${app##*[![:space:]]}"}"
-    [ "$RXUSER" == "" ] && ruser=$(whoami) || ruser=$RXUSER
+    userhost="$host"
+    if [ "${userhost%%@*}" == "$userhost" ]
+    then
+	# Check $RXUSER since provided host not user@host
+	[ "$RXUSER" != "" ] && userhost="$RXUSER@$host"
+    fi
     [ "$dpy" == "" ] && sshsw="${RXSSHSW:--X}" || sshsw=""
     [ "$RXDBGOUT" != "" ] && (date ; printf "* rxapp remote command: $app\n\n") > $RXDBGOUT
-    (ssh -t ${RXDBGSSH} $sshsw $ruser@$host >> ${RXDBGOUT:-/dev/null} 2>&1 << EOF
+    (ssh -t ${RXDBGSSH} $sshsw $userhost >> ${RXDBGOUT:-/dev/null} 2>&1 << EOF
 [ "$dpy" != "" ] && declare -x DISPLAY="$dpy"
 [ "$RXDBGRMT" != "" ] && ( date ; printenv) > ${RXDBGRMT:-/dev/null}
 $app &

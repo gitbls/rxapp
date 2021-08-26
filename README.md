@@ -134,7 +134,7 @@ After editing your .bashrc, you can test your new commands after by first using 
 
 * Use this on the command line to run an X11 application an a remote host
 ```
-rxapp hostname cmdname arg1 arg2 arg3 arg4 ... arg8
+rxapp [user@]hostname cmdname arg1 arg2 arg3 arg4 ... arg8
 ```
 
 These environment variables may be used to control rxapp's operation. You can either prefix your *rxapp* command line with the definition so that it only affects that command, or you can put define them globally on the command line or in your .bashrc by using the `declare -x` command.
@@ -165,6 +165,7 @@ declare -x RXUSER="otherme"
     * Default is "-X"
 * **RXUSER**&mdash;The username for the system where the X client app will be run
     * Default is same as current user
+    * This can also be specified on the command line to rxapp with *user@host* instead of just *host*
 
 These environment variables can help debug rxapp/ssh issues
 * **RXDBGOUT**&mdash;Specify file for ssh console output. /dev/null if not specified
