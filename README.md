@@ -106,7 +106,7 @@ This should seamlessly login to *otherhost* with no password prompt for the acco
 ```
 RXSSHSW="-X -Y" rxapp myhost myapp
 ```
-   * **To use a direct TCP connection to an X Server**, see 5) below and set the environment variable RXDISPLAY:
+   * **To use a direct TCP connection to an X Server**, see notes below and set the environment variable RXDISPLAY:
 ```
 RXDISPLAY=somehost.local:0 rxapp otherhost someX11app
 ```
@@ -123,7 +123,7 @@ function rxterm() { (rxapp $1 xterm $2 $3 $4 $5 $6 $7 $8) ; } ; declare -fx rxte
 ```
 function rxchromium() { (rxapp $1 chromium $2 $3 $4 $5 $6 $7 $8) ; } ; declare -fx rxchromium
 ```
-* Optionally, include RXUSER to run a remote X11 service as a different user (See 2a below)
+* Optionally, include RXUSER to run a remote X11 service as a different user (See notes below)
 ```
 function rxotheru() { (declare -x RXUSER="other" ; rxapp $1 xterm $2 $3 $4) ; } ; declare -fx rxotheru
 function rxtsu() { (declare -x RXUSER="root" ; rxapp $1 xterm $2 $3 $4) ; } ; declare -fx rxtsu
