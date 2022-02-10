@@ -45,13 +45,12 @@ both have ssh set up correctly as follows:
 The steps below will guide you through this.
 
 * **Create the key** This can be done on any host, but the keys must be deployed correctly
-      on both the rxapp-starting host and the target host. Easiest to do this on the rxapp-starting host.
-      * `ssh-keygen -t rsa -C keycomment`
-        * Creates an ssh key pair with the comment *keycomment*
-          * By default the comment in the public key will be 'user@host'
-          * Specifying a useful *keycomment* makes it easier to identify the key when you look at 
-            `~/.ssh/authorized_keys` and is critical if you use multiple keys so you can easily identify each one.
-      * When you create the key you'll be prompted for a passphrase for the key. This is highly recommended for increased security. `keychain` and/or `ssh-agent` make using passphrase-protected keys quite tolerable.
+on both the rxapp-starting host and the target host. Easiest to do this on the rxapp-starting host.
+  * `ssh-keygen -t rsa -C keycomment`
+    * Creates an ssh key pair with the comment *keycomment*
+    * By default the comment in the public key will be 'user@host'
+    * Specifying a useful *keycomment* makes it easier to identify the key when you look at `~/.ssh/authorized_keys` and is critical if you use multiple keys so you can easily identify each one.
+    * When you create the key you'll be prompted for a passphrase for the key. This is highly recommended for increased security. `keychain` and/or `ssh-agent` make using passphrase-protected keys quite tolerable.
       * If you use `keychain` or `ssh-agent` you'll typically only enter it once per system reboot
       * Make sure that you save the new key in `~/.ssh` (aka `/home/yourusername/.ssh`)
       * Expert tip: Can also add -O source-address=ip.ad.dr.0/24 for instance, to restrict the key to those
@@ -59,18 +58,19 @@ The steps below will guide you through this.
       * See `man ssh-keygen` for a complete list of options and the complete ssh-keygen help
 
 * **Propagate the public key** as needed to the target host(s) (X11 app running host)
-      * `ssh-copy-id -i identity-file [user@]otherhost`
-      * The rxapp-starting host must have both the public (keyname.pub) and private (keyname) keys in ~/.ssh
-      * If needed, copy the private key manually to `~/.ssh` on the rxapp-starting host and protect it 600
+  * `ssh-copy-id -i identity-file [user@]otherhost`
+    * The rxapp-starting host must have both the public (keyname.pub) and private (keyname) keys in ~/.ssh
+    * If needed, copy the private key manually to `~/.ssh` on the rxapp-starting host and protect it 600
 
 * If you want to use the rxapp *run as different user* feature, use `ssh-copy-id` to propagate the public key to those accounts as well
 
 * **Use ssh-agent** on the rxapp-starting host to enable password-less ssh key usage
-      *keychain is a simple way to manage and use ssh-agent*. Either use keychain, or ssh-agent by itself. But not both.
+  * `keychain` is a simple way to manage and use ssh-agent
+  * Use keychain, or ssh-agent by itself. But not both.
 
 * **Using keychain** to simplify use of ssh-agent
-    * `sudo apt install keychain`
-    * Add to your .bashrc at the correct spot (try the end if you're not sure). If your keys have a password on them (and they should), you will be prompted for the password. This is true whether you're using `keychain` or `ssh-agent/ssh-add` directly.
+  * `sudo apt install keychain`
+  * Add to your .bashrc at the correct spot (try the end if you're not sure). If your keys have a password on them (and they should), you will be prompted for the password. This is true whether you're using `keychain` or `ssh-agent/ssh-add` directly.
 ```
     # keystart and keystop aliases make it easy to stop and restart ssh-agent
     # Replace 'sshkeyfile' with the filename(s) of the keys you want to use (just the filename, not full path)
@@ -80,8 +80,8 @@ The steps below will guide you through this.
                                             # The optional `--ignore-missing` switch eliminates messages about missing keys.
 ```
 * **Using ssh-agent by itself** without keychain
-    * There are many tutorials and permutations for using ssh-agent
-    * One way is to add to your .bashrc at an appropriate location. As with `keychain`, if your keys have a password on them you will be prompted for the password.
+  * There are many tutorials and permutations for using ssh-agent
+  * One way is to add to your .bashrc at an appropriate location. As with `keychain`, if your keys have a password on them you will be prompted for the password.
 ```
 eval `ssh-agent`    # Start ssh-agent
 ssh-add sshkeyfile  # Add the private key identity to ssh-agent
@@ -100,9 +100,9 @@ This should seamlessly login to *otherhost* with no password prompt for the acco
 
 ## SSH Forwarding
 
-   * **SSH X11 Forwarding is used by default with *rxapp***. The remote application will be displayed on the X Server of the rxapp-starting host
-   * *rxapp* will add the ssh switch "-X" to enable X11 Forwarding
-   * *Expert tip:* Define the environment variable RXSSHSW with any desired additional ssh switches:
+* **SSH X11 Forwarding is used by default with *rxapp***. The remote application will be displayed on the X Server of the rxapp-starting host
+* *rxapp* will add the ssh switch "-X" to enable X11 Forwarding
+* *Expert tip:* Define the environment variable RXSSHSW with any desired additional ssh switches:
 ```
 RXSSHSW="-X -Y" rxapp myhost myapp
 ```
