@@ -46,8 +46,9 @@ The steps below will guide you through this.
 
 * **Create the key** This can be done on any host, but the keys must be deployed correctly
 on both the rxapp-starting host and the target host. Easiest to do this on the rxapp-starting host.
-  * `ssh-keygen -t rsa -C keycomment`
+  * `ssh-keygen -t ed25519 -C keycomment`
     * Creates an ssh key pair with the comment *keycomment*
+    * Instead of 'ed25519' you can use dsa, ecdsa, or rsa, but ed25519 is more generally preferred
     * By default the comment in the public key will be 'user@host'
     * Specifying a useful *keycomment* makes it easier to identify the key when you look at `~/.ssh/authorized_keys` and is critical if you use multiple keys so you can easily identify each one.
     * When you create the key you'll be prompted for a passphrase for the key. This is highly recommended for increased security. `keychain` and/or `ssh-agent` make using passphrase-protected keys quite tolerable.
@@ -132,7 +133,7 @@ After editing your .bashrc, you can test your new commands after by first using 
 
 ## Command line Special rxapp control features
 
-* Use this on the command line to run an X11 application an a remote host
+* Use this on the command line to run an X11 application on a remote host
 ```
 rxapp [user@]hostname cmdname arg1 arg2 arg3 arg4 ... arg8
 ```
@@ -155,7 +156,7 @@ declare -x RXUSER="otherme"
     * The default is to use SSH X11 Forwarding over the SSH connection to the current host (where rxapp is running). RXDISPLAY is not used with SSH X11 Forwarding.
     * RXDISPLAY can be set to be any host with X server running that has been configured per the section *Configuring the X Server for direct TCP connections*
 * **RXGappname**&mdash;Specify the geometry for an app if defined
-    * e.g., RXGXTERM for *xterm *, RXGCHROMIUM for *chromium*, RXGXEYES for *xeyes
+    * e.g., RXGXTERM for *xterm*, RXGCHROMIUM for *chromium*, RXGXEYES for *xeyes*
     * Default is whatever the X defaults are for that app
     * Standard X11 apps use "-geometry WIDTHxHEIGHT". e.g., `RXGXTERM=-"geometry 140x60"`
     * Other apps might have a different syntax, for example
