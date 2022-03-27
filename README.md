@@ -155,6 +155,8 @@ declare -x RXUSER="otherme"
     * Using RXDISPLAY creates an unencrypted TCP network connection without using SSH X11 Forwarding; this is generally OK for a 'home LAN'
     * The default is to use SSH X11 Forwarding over the SSH connection to the current host (where rxapp is running). RXDISPLAY is not used with SSH X11 Forwarding.
     * RXDISPLAY can be set to be any host with X server running that has been configured per the section *Configuring the X Server for direct TCP connections*
+* **RXKILL**&mdash; Number of seconds to wait before killing the SSH client used to start the remote X application
+    * Honored if SSH X11 forwarding is not being used (RXDISPLAY is non-null)
 * **RXGappname**&mdash;Specify the geometry for an app if defined
     * e.g., RXGXTERM for *xterm*, RXGCHROMIUM for *chromium*, RXGXEYES for *xeyes*
     * Default is whatever the X defaults are for that app
