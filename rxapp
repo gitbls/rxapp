@@ -35,6 +35,8 @@ $app &
 exit
 EOF
     ) &
+    spid=$!
+    [ "$RXKILL" != "" -a "$RXDISPLAY" != "" ] && sleep $RXKILL && kill -KILL $spid
 }
 
 function rxapp_() {
@@ -148,6 +150,7 @@ exit
 #                 Default is to use SSH X11 Forwarding over the SSH connection to the current host (where rxapp is running)
 #                 RXDISPLAY can be to the host where rxapp is run, or another host with an X server running
 #                 Using RXDISPLAY creates an unencrypted connection without SSH X11 Forwarding (OK for a 'home LAN')
+#      RXKILL     If non-null, number of seconds to wait before killing ssh client (optimization). Ignored if RXDISPLAY==""
 #      RXUSER     The username for the system where the X client app will be run
 #                 Default is same as current user
 #      RXGappname Specify the geometry for an app if defined
