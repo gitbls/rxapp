@@ -36,7 +36,7 @@ exit
 EOF
     ) &
     spid=$!
-    [ "$RXKILL" != "" -a "$RXDISPLAY" != "" ] && sleep $RXKILL && kill -KILL $spid
+    [ "$RXKILL" != "" -a "$RXDISPLAY" != "" ] && (sleep $RXKILL && kill -KILL $spid) &
 }
 
 function rxapp_() {
