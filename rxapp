@@ -12,10 +12,10 @@ function _rxapp_call() {
     #If RXUSER is defined, use that for the remote user, otherwise use current user
     #
     local host=$1 dpy=$2
-    local app="${3%\"}" # Del opening double-quotes 
-    app="${app#\"}"     # Del closing double-quotes 
-    app="${app%\'}"     # Del opening single-quotes 
-    app="${app#\'}"     # Del closing single-quotes 
+    local app="${3%\"}" # Del opening and closing single and double-quotes 
+    app="${app#\"}"
+    app="${app%\'}"
+    app="${app#\'}"
     app="$app $4 $5 $6 $7 $8 $9 ${10} ${11} ${12} ${13} ${14} ${15} ${16} ${17}"
     # remove extra whitespace characters
     app="${app#"${app%%[![:space:]]*}"}"
@@ -44,15 +44,16 @@ function rxapp_() {
     # $1 - target hostname
     # $2-$13 program to run and arguments
     #
-    local hn=$1 dpy="$RXDISPLAY"
-    local appb="$(basename $2)"
-    local appgeoenv="RXG${appb^^}"
-    local app="$2 ${!appgeoenv}" # Include app-specific geometry setting if defined (RXGappname, e.g., RXGXTERM)
+    local hn="$1" dpy="$RXDISPLAY" app="$2"
+    [ "$hn" == "" -o "$app" == "" ] && echo "? Missing hostname or app" && exit 1
+    appb="$(basename $2)"
+    appgeoenv="RXG${appb^^}"
+    app="$app ${!appgeoenv}" # Include app-specific geometry setting if defined (RXGappname, e.g., RXGXTERM)
     _rxapp_call $hn "$dpy" $app $3 $4 $5 $6 $7 $8 $9 ${10} ${11} ${12} ${13} ${14} ${15} ${16}
 }
 
 rxapp_ $1 $2 $3 $4 $5 $6 $7 $8 $9 ${10} ${11} ${12} ${13} ${14} ${15} ${16}
-exit
+exit 0
 
 # Quickly and Easily start X11 applications running on a remote client system,
 # displaying on the desired X server
