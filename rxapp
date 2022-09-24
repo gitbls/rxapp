@@ -51,10 +51,12 @@ function rxapp_() {
     #
     local hn="$1" dpy="$RXDISPLAY" app="$2"
     [ "$hn" == "" -o "$app" == "" ] && echo "? Missing hostname or app" && exit 1
+    [ "$SSH_AGENT_PID" == "" -o "$SSH_AUTH_SOCK" == "" ] && errexit "? Your ssh-agent isn't running"
+    [ "$(pgrep -U $(id -u) ssh-agent)" != "$SSH_AGENT_PID" ] && errexit "? Your ssh-agent isn't running"
+    [ ! -S "$SSH_AUTH_SOCK" ] && errexit "? ssh-agent problem. stop/restart it"
     appb="$(basename $2)"
     appgeoenv="RXG${appb^^}"
     app="$app ${!appgeoenv}" # Include app-specific geometry setting if defined (RXGappname, e.g., RXGXTERM)
-    [ "$(pgrep -U $(id -u) ssh-agent)" != "$SSH_AGENT_PID" -o ! -S "$SSH_AUTH_SOCK" ] && errexit "? keychain or ssh-agent problem"
     _rxapp_call $hn "$dpy" $app $3 $4 $5 $6 $7 $8 $9 ${10} ${11} ${12} ${13} ${14} ${15} ${16}
 }
 
