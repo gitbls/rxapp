@@ -169,6 +169,10 @@ declare -x RXUSER="otherme"
 * **RXUSER**&mdash;The username for the system where the X client app will be run
     * Default is same as current user
     * This can also be specified on the command line to rxapp with *user@host* instead of just *host*
+* **RXDNS**&mdash;Enable name checking (handy if you tend to mistype domain names)
+    * If non-null, checks that host's DNS name exists or is specifically listed in a Host statement in $HOME/.ssh/config
+    * Append domain specified in RXDOMAIN instead of checking domains in /etc/resolv.conf 'search' for domain names
+    * e.g., `RXDNS=y RXDOMAIN=mydom.com rxapp somehost someapp`
 
 These environment variables can help debug rxapp/ssh issues
 * **RXDBGOUT**&mdash;Specify file for ssh console output. /dev/null if not specified

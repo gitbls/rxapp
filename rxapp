@@ -5,8 +5,23 @@
 # See the end of this script for complete details on configuration and use
 #
 function errexit() {
-    echo -e "$1" > $(tty)
+    echo -e "$1" > /dev/tty
     exit 1
+}
+
+function hostexist() {
+    # $1: hostname
+    # $2: domain name (optional)
+    local hn=$1 dname=$2
+
+     # dig returns success if NXDOMAIN which makes status useless here
+    [ "$(dig -4 +short $hn)" != "" ] && return 0
+    [ -f /etc/resolv.conf -a "$dname" == "" ] && read srch dn1 dn2 dn3 dn4 < <(grep search /etc/resolv.conf)
+    for dn in $dname $dn1 $dn2 $dn3 $dn4
+    do
+	[ "$(dig -4 +short +domain=$dn $hn)" != "" ] && return 0
+    done
+    grep "^Host" $HOME/.ssh/config 2>/dev/null | grep -q " $hn\b" && return 0 || return 1
 }
 
 function _rxapp_call() {
@@ -54,6 +69,13 @@ function rxapp_() {
     [ "$SSH_AGENT_PID" == "" -o "$SSH_AUTH_SOCK" == "" ] && errexit "? Your ssh-agent isn't running"
     [ "$(pgrep -U $(id -u) ssh-agent)" != "$SSH_AGENT_PID" ] && errexit "? Your ssh-agent isn't running"
     [ ! -S "$SSH_AUTH_SOCK" ] && errexit "? ssh-agent problem. stop/restart it"
+    if [ "$RXDNS" != "" ]
+    then
+	if ! hostexist $hn $RXDOMAIN
+	then
+	    [ "$RXDOMAIN" == "" ] && errexit "? Host '$hn' not found" || errexit "? Host '$hn.$RXDOMAIN' not found"
+	fi
+    fi
     appb="$(basename $2)"
     appgeoenv="RXG${appb^^}"
     app="$app ${!appgeoenv}" # Include app-specific geometry setting if defined (RXGappname, e.g., RXGXTERM)
@@ -170,6 +192,8 @@ exit 0
 #                 Default is whatever the X defaults are for that app
 #      RXSSHSW    Specify ssh switches to use for X11 forwarding
 #                 Default is "-X"
+#      RXDNS      Check if host exists before connecting
+#      RXDOMAIN   Append this domain to hostname instead of checking domains in /etc/resolv.conf 'search'
 #
 #    * Environment variables to help debug rxapp/ssh issues
 #
