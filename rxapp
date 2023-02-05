@@ -78,6 +78,7 @@ function rxapp_() {
     fi
     appb="$(basename $2)"
     appgeoenv="RXG${appb^^}"
+    appgeoenv=${appgeoenv/-/_}    # Convert hyphens to underscores
     app="$app ${!appgeoenv}" # Include app-specific geometry setting if defined (RXGappname, e.g., RXGXTERM)
     _rxapp_call $hn "$dpy" $app $3 $4 $5 $6 $7 $8 $9 ${10} ${11} ${12} ${13} ${14} ${15} ${16}
 }
@@ -190,6 +191,7 @@ exit 0
 #                 lxterminal uses "--geometry=WIDTHxHEIGHT" so: declare -x RXGLXTERMINAL="--geometry WIDTHxHEIGHT"
 #                 See the man page or help for the app in question
 #                 Default is whatever the X defaults are for that app
+#                 NOTE: If appname has a hyphen the variable name will use underscores. e.g., for chromium-browser it would be RXGCHROMIUM_BROWSER
 #      RXSSHSW    Specify ssh switches to use for X11 forwarding
 #                 Default is "-X"
 #      RXDNS      Check if host exists before connecting
