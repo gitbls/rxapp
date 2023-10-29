@@ -67,7 +67,7 @@ function rxapp_() {
     local hn="$1" dpy="$RXDISPLAY" app="$2"
     [ "$hn" == "" -o "$app" == "" ] && echo "? Missing hostname or app" && exit 1
     [ "$SSH_AGENT_PID" == "" -o "$SSH_AUTH_SOCK" == "" ] && errexit "? Your ssh-agent isn't running"
-    [ "$(pgrep -U $(id -u) ssh-agent)" != "$SSH_AGENT_PID" ] && errexit "? Your ssh-agent isn't running"
+    [[ ! "$(pgrep -U $(id -u) ssh-agent)" =~ "$SSH_AGENT_PID" ]] && errexit "? Your ssh-agent is not running"
     [ ! -S "$SSH_AUTH_SOCK" ] && errexit "? ssh-agent problem. stop/restart it"
     if [ "$RXDNS" != "" ]
     then
