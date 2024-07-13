@@ -171,7 +171,7 @@ declare -x RXUSER="otherme"
     * This can also be specified on the command line to rxapp with *user@host* instead of just *host*
 * **RXDNS**&mdash;Enable name checking (handy if you tend to mistype domain names)
     * If non-null, checks that host's DNS name exists or is specifically listed in a Host statement in $HOME/.ssh/config
-    * Append domain specified in RXDOMAIN instead of checking domains in /etc/resolv.conf 'search' for domain names
+    * Append domain specified in RXDOMAIN (if set) instead of checking against domains in /etc/resolv.conf 'search' for domain names
     * e.g., `RXDNS=y RXDOMAIN=mydom.com rxapp somehost someapp`
 
 These environment variables can help debug rxapp/ssh issues
