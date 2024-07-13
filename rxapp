@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# V1.2
+# V1.3
 #
 # See the end of this script for complete details on configuration and use
 #
@@ -65,7 +65,7 @@ function rxapp_() {
     # $2-$13 program to run and arguments
     #
     local hn="$1" dpy="$RXDISPLAY" app="$2"
-    [ "$hn" == "" -o "$app" == "" ] && echo "? Missing hostname or app" && exit 1
+    [ "$hn" == "" ] && errexit "Usage: $0 hostname appname"
     [ "$SSH_AGENT_PID" == "" -o "$SSH_AUTH_SOCK" == "" ] && errexit "? Your ssh-agent isn't running"
     [[ ! "$(pgrep -U $(id -u) ssh-agent)" =~ "$SSH_AGENT_PID" ]] && errexit "? Your ssh-agent is not running"
     [ ! -S "$SSH_AUTH_SOCK" ] && errexit "? ssh-agent problem. stop/restart it"
@@ -76,7 +76,8 @@ function rxapp_() {
 	    [ "$RXDOMAIN" == "" ] && errexit "? Host '$hn' not found" || errexit "? Host '$hn.$RXDOMAIN' not found"
 	fi
     fi
-    appb="$(basename $2)"
+    [ "$app" == "" ] && errexit "Usage: $0 hostname appname"
+    appb="$(basename $app)"
     appgeoenv="RXG${appb^^}"
     appgeoenv=${appgeoenv/-/_}    # Convert hyphens to underscores
     app="$app ${!appgeoenv}" # Include app-specific geometry setting if defined (RXGappname, e.g., RXGXTERM)
